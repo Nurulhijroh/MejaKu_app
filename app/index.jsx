@@ -26,7 +26,7 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      <Text>(data? data.name : '')</Text>
+      <Text style={{ fontSize: 20 }}> {data ? data.name : ""}</Text>
     </View>
   );
 }
