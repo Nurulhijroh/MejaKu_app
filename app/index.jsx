@@ -1,5 +1,6 @@
 import { Text, View } from "react-native";
 import React, { useEffect } from "react";
+import { BarCodeScanner } from "expo-barcode-scanner";
 
 export default function Index() {
   const [data, setData] = React.useState(null);
