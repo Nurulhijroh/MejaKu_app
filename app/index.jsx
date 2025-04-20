@@ -1,33 +1,43 @@
-import { Text, View } from "react-native";
-import React, { useEffect } from "react";
+import { useRouter } from "expo-router";
 import { BarCodeScanner } from "expo-barcode-scanner";
+import React, { useEffect, useState } from "react";
+import { View, Text, Button, StyleSheet } from "react-native-web";
 
 export default function Index() {
-  const [data, setData] = React.useState(null);
-
-  const getData = async () => {
-    try {
-      const hasil = await fetch("https://silat.barengsaya.com/api/karyawan/2");
-      const json = await hasil.json();
-      setData(json.data);
-      console.log(json.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const [hasPermission, setHasPermission] = useState(null);
+  const [scanned, setScanned] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    getData();
+    (async () => {
+      const { status } = await BarCodeScanner.requestPermissionsAsync();
+      setHasPermission(status === "granted");
+    })();
   }, []);
+
+  const handleBarCodeScanned = ({ data }) => {
+    setScanned(true);
+    const table = new URL(data).searchParams.get("table") || "unknown";
+    router.push("/welcome?table=${table}");
+  };
+
+  if (hasPermission === null) {
+    return <Text>Meminta izin kamera </Text>;
+  }
+  if (hasPermission === false) {
+    return <Text>Akses kamera ditolak.</Text>;
+  }
+
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text style={{ fontSize: 20 }}> {data ? data.name : ""}</Text>
+    <View style={{ flex: 1 }}>
+      <BarCodeScanner
+        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+        style={StyleSheet.absoluteFillobject}
+      />
+
+      {scanned && (
+        <button title={"scan lagi"} onPress={() => setScanned(false)} />
+      )}
     </View>
   );
 }
